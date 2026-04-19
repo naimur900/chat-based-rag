@@ -40,6 +40,8 @@ function titleFromText(text: string) {
 }
 
 export default function Home() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   // --- Sidebar view: "chats" or "archive" ---
   const [view, setView] = useState<"chats" | "archive">("chats");
 
@@ -111,12 +113,12 @@ export default function Home() {
     setActiveChatId(id);
     setMessages([]);
     setView("chats");
+    setSidebarOpen(false);
   }, [setMessages]);
 
   const loadChat = useCallback(
     (chat: SavedChat) => {
       setActiveChatId(chat.id);
-      // Reconstruct UIMessage-compatible objects from saved data
       const restored = chat.messages.map((m) => ({
         id: m.id,
         role: m.role as "user" | "assistant",
@@ -124,6 +126,7 @@ export default function Home() {
       }));
       setMessages(restored);
       setView("chats");
+      setSidebarOpen(false);
     },
     [setMessages]
   );
@@ -228,8 +231,20 @@ export default function Home() {
       {/* Scanline Overlay */}
       <div className="fixed inset-0 scanlines z-[100] opacity-10 pointer-events-none" />
 
+      {/* Mobile sidebar backdrop */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 z-40 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="flex flex-col h-screen w-72 shrink-0 bg-surface border-r border-outline-variant/10 z-50">
+      <aside
+        className={`fixed md:relative inset-y-0 left-0 flex flex-col h-screen w-72 shrink-0 bg-surface border-r border-outline-variant/10 z-50 transition-transform duration-300 ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        }`}
+      >
         {/* Brand */}
         <div className="p-6 pb-4">
           <div className="font-black text-[#00F0FF] tracking-tighter text-xl italic font-headline mb-1">
@@ -447,10 +462,18 @@ export default function Home() {
       </aside>
 
       {/* Main chat area */}
-      <main className="flex-1 flex flex-col relative h-full bg-surface">
+      <main className="flex-1 flex flex-col relative h-full bg-surface min-w-0">
         {/* Thread Header */}
-        <div className="h-14 border-b border-outline-variant/10 flex items-center justify-between px-8 bg-surface-container-low/30 backdrop-blur-md shrink-0">
-          <div className="flex items-center gap-4">
+        <div className="h-14 border-b border-outline-variant/10 flex items-center justify-between px-4 md:px-8 bg-surface-container-low/30 backdrop-blur-md shrink-0">
+          <div className="flex items-center gap-3 md:gap-4">
+            {/* Hamburger – mobile only */}
+            <button
+              className="md:hidden w-8 h-8 flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"
+              onClick={() => setSidebarOpen(true)}
+              aria-label="Open sidebar"
+            >
+              <span className="material-symbols-outlined text-xl">menu</span>
+            </button>
             <div className="w-1 h-6 bg-secondary shadow-[0_0_10px_#ff59e3]" />
             <div>
               <h1 className="font-headline font-black text-sm tracking-wider text-on-surface uppercase italic">
@@ -482,7 +505,7 @@ export default function Home() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 custom-scrollbar">
           {/* Empty state */}
           {messages.length === 0 && (
             <div className="flex flex-col items-center justify-center h-full space-y-8 py-8">
@@ -578,7 +601,7 @@ export default function Home() {
             return (
               <div key={m.id}>
                 {isUser ? (
-                  <div className="flex items-start gap-3 max-w-2xl ml-auto flex-row-reverse">
+                  <div className="flex items-start gap-2 md:gap-3 max-w-[92%] md:max-w-2xl ml-auto flex-row-reverse">
                     <div className="w-8 h-8 border border-primary/30 shrink-0 flex items-center justify-center">
                       <span className="material-symbols-outlined text-primary text-sm">
                         person
@@ -596,7 +619,7 @@ export default function Home() {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-start gap-3 max-w-2xl">
+                  <div className="flex items-start gap-2 md:gap-3 max-w-[92%] md:max-w-2xl">
                     <div className="w-8 h-8 border border-secondary/30 shrink-0 flex items-center justify-center">
                       <span className="material-symbols-outlined text-secondary text-sm">
                         smart_toy
@@ -623,7 +646,7 @@ export default function Home() {
 
           {/* Loading indicator */}
           {isLoading && messages[messages.length - 1]?.role !== "assistant" && (
-            <div className="flex items-start gap-3 max-w-2xl">
+            <div className="flex items-start gap-2 md:gap-3 max-w-[92%] md:max-w-2xl">
               <div className="w-8 h-8 border border-secondary/30 shrink-0 flex items-center justify-center">
                 <span className="material-symbols-outlined text-secondary text-sm animate-pulse">
                   smart_toy
@@ -644,7 +667,7 @@ export default function Home() {
         </div>
 
         {/* Input Area */}
-        <div className="p-6 bg-surface-container-low/50 backdrop-blur-xl border-t border-outline-variant/10 shrink-0">
+        <div className="p-3 md:p-6 bg-surface-container-low/50 backdrop-blur-xl border-t border-outline-variant/10 shrink-0">
           <div className="relative flex items-end gap-3 max-w-4xl mx-auto">
             <div className="flex-1 relative">
               <textarea
