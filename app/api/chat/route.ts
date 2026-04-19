@@ -21,7 +21,13 @@ export async function POST(req: Request) {
   const question: string =
     typeof lastUser?.content === "string"
       ? lastUser.content
-      : (lastUser?.content?.[0]?.text ?? "");
+      : (lastUser?.content?.[0]?.text ??
+         lastUser?.parts?.find((p: any) => p.type === "text")?.text ??
+         "");
+
+  if (!question.trim()) {
+    return new Response("No message provided", { status: 400 });
+  }
 
   // 1. RETRIEVE
   const queryVec = await embedOne(question);
@@ -46,7 +52,7 @@ ${context}`;
 
   // 3. GENERATE (streaming)
   const result = streamText({
-    model: ollama("qwen3.5:cloud"),
+    model: ollama.chat("qwen3.5:cloud"),
     // model: anthropic("claude-sonnet-4-5"),
     system,
     messages: await convertToModelMessages(messages),

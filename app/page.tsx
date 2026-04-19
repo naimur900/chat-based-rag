@@ -133,19 +133,19 @@ export default function Home() {
       setSavedChats((prev) => {
         const target = prev.find((c) => c.id === chatId);
         if (!target) return prev;
-        setArchives((aPrev) => {
-          const next = [target, ...aPrev];
-          saveToLS(LS_ARCHIVES, next);
-          return next;
-        });
         const next = prev.filter((c) => c.id !== chatId);
         saveToLS(LS_CHATS, next);
-        if (activeChatId === chatId) {
-          setActiveChatId(null);
-          setMessages([]);
-        }
+        setArchives((aPrev) => {
+          const archiveNext = [target, ...aPrev];
+          saveToLS(LS_ARCHIVES, archiveNext);
+          return archiveNext;
+        });
         return next;
       });
+      if (activeChatId === chatId) {
+        setActiveChatId(null);
+        setMessages([]);
+      }
     },
     [activeChatId, setMessages]
   );
@@ -181,12 +181,12 @@ export default function Home() {
       setSavedChats((prev) => {
         const next = prev.filter((c) => c.id !== chatId);
         saveToLS(LS_CHATS, next);
-        if (activeChatId === chatId) {
-          setActiveChatId(null);
-          setMessages([]);
-        }
         return next;
       });
+      if (activeChatId === chatId) {
+        setActiveChatId(null);
+        setMessages([]);
+      }
     },
     [activeChatId, setMessages]
   );
@@ -504,8 +504,12 @@ export default function Home() {
           )}
 
           {/* Chat messages */}
-          {messages.map((m) => {
+          {messages.map((m, idx) => {
             const isUser = m.role === "user";
+            const isStreamingThis =
+              isLoading &&
+              !isUser &&
+              idx === messages.length - 1;
             const text = m.parts
               .filter(
                 (p): p is { type: "text"; text: string } => p.type === "text"
@@ -548,6 +552,9 @@ export default function Home() {
                       </div>
                       <p className="font-body text-sm leading-relaxed text-on-surface whitespace-pre-wrap">
                         {text}
+                        {isStreamingThis && (
+                          <span className="inline-block w-0.5 h-3.5 ml-0.5 bg-secondary align-middle animate-[blink_0.7s_step-end_infinite]" />
+                        )}
                       </p>
                     </div>
                   </div>

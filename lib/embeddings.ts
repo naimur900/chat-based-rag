@@ -3,8 +3,10 @@ import { GoogleGenAI } from "@google/genai";
 // import OpenAI from "openai";
 // const OLLAMA_URL = process.env.OLLAMA_LOCAL_URL ?? "http://localhost:11434";
 
-const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-// const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+function getGenai() {
+  return new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+}
+// function getOpenAI() { return new OpenAI({ apiKey: process.env.OPENAI_API_KEY }); }
 
 function l2Normalize(vec: number[]): number[] {
   const norm = Math.sqrt(vec.reduce((sum, v) => sum + v * v, 0));
@@ -12,12 +14,16 @@ function l2Normalize(vec: number[]): number[] {
 }
 
 export async function embed(texts: string[]): Promise<number[][]> {
-  const res = await genai.models.embedContent({
-    model: "gemini-embedding-001",
-    contents: texts,
-    config: { outputDimensionality: 1536 },
-  });
-  return res.embeddings!.map((e) => l2Normalize(e.values!));
+  const results = await Promise.all(
+    texts.map((text) =>
+      getGenai().models.embedContent({
+        model: "gemini-embedding-001",
+        contents: text,
+        config: { outputDimensionality: 1536 },
+      }),
+    ),
+  );
+  return results.map((res) => l2Normalize(res.embeddings![0].values!));
 
   // for openAI embedding model
   //   const res = await openai.embeddings.create({

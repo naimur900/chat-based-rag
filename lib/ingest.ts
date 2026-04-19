@@ -1,7 +1,8 @@
 // This is the one-time (well, every-time-you-change-docs) script that reads your markdown, chunks it, embeds it, and uploads it.
 
 // scripts/ingest.ts
-import "dotenv/config";
+import { config } from "dotenv";
+config({ path: ".env.local" });
 import matter from "gray-matter";
 import { readdir, readFile } from "node:fs/promises";
 import { join, relative } from "node:path";
