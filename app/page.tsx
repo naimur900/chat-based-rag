@@ -485,7 +485,7 @@ export default function Home() {
         <div className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar">
           {/* Empty state */}
           {messages.length === 0 && (
-            <div className="flex flex-col items-center justify-center h-full space-y-6">
+            <div className="flex flex-col items-center justify-center h-full space-y-8 py-8">
               <div className="w-16 h-16 border border-primary/20 flex items-center justify-center">
                 <span className="material-symbols-outlined text-primary/40 text-3xl">
                   menu_book
@@ -496,9 +496,67 @@ export default function Home() {
                   Ask Your Knowledge Base
                 </p>
                 <p className="font-body text-xs text-on-surface-variant/40 max-w-md">
-                  Ask questions and get answers sourced from your documents.
-                  Start a conversation to search your knowledge base.
+                  This knowledge base covers{" "}
+                  <span className="text-primary/60">Clean Code</span>,{" "}
+                  <span className="text-primary/60">Design Patterns</span>,{" "}
+                  <span className="text-primary/60">Refactoring</span>,{" "}
+                  <span className="text-primary/60">SOLID Principles</span>,{" "}
+                  <span className="text-primary/60">System Design</span>, and{" "}
+                  <span className="text-primary/60">Testing Best Practices</span>.
+                  Click a suggestion or type your own question.
                 </p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-2xl">
+                {[
+                  {
+                    icon: "code",
+                    tag: "Clean Code",
+                    question: "What are the principles of writing clean, readable code?",
+                  },
+                  {
+                    icon: "architecture",
+                    tag: "Design Patterns",
+                    question: "When should I use the Factory pattern vs the Builder pattern?",
+                  },
+                  {
+                    icon: "build",
+                    tag: "Refactoring",
+                    question: "What are common code smells and how do I refactor them?",
+                  },
+                  {
+                    icon: "rule",
+                    tag: "SOLID",
+                    question: "Can you explain the Single Responsibility Principle with an example?",
+                  },
+                  {
+                    icon: "storage",
+                    tag: "System Design",
+                    question: "How do I design a scalable system with high availability?",
+                  },
+                  {
+                    icon: "science",
+                    tag: "Testing",
+                    question: "What is the difference between unit, integration, and end-to-end tests?",
+                  },
+                ].map(({ icon, tag, question }) => (
+                  <button
+                    key={tag}
+                    onClick={() => setInput(question)}
+                    className="flex items-start gap-3 p-4 border border-outline-variant/20 hover:border-primary/40 hover:bg-surface-container-high/40 transition-all text-left group"
+                  >
+                    <span className="material-symbols-outlined text-primary/40 text-base group-hover:text-primary/70 shrink-0 mt-0.5">
+                      {icon}
+                    </span>
+                    <div className="min-w-0">
+                      <div className="font-label text-[9px] uppercase tracking-widest text-secondary/60 mb-1">
+                        {tag}
+                      </div>
+                      <div className="font-body text-xs text-on-surface-variant/60 group-hover:text-on-surface-variant leading-relaxed">
+                        {question}
+                      </div>
+                    </div>
+                  </button>
+                ))}
               </div>
             </div>
           )}
