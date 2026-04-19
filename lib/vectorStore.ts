@@ -5,7 +5,7 @@ export interface ChunkMetadata {
   text: string;
   source: string;
   chunkIndex: number;
-  [key: string]: any; // Upstash requires index signature
+  [key: string]: any;
 }
 
 function getIndex() {

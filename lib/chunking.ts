@@ -1,6 +1,4 @@
-// Recursive splitter that respects markdown structure. It tries to split on headings first, then paragraphs, then sentences, then words.
-
-const SEPARATORS = ["\n## ", "\n### ", "\n\n", "\n", ". ", " ", ""];
+const SEPARATORS = ["\n## ", "\n### ", "\n\n", "\n", ". ", " ", ""]; // Recursive splitter that respects markdown structure. It tries to split on headings first, then paragraphs, then sentences, then words.
 
 export function chunkText(
   text: string,

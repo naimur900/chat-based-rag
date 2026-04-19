@@ -1,8 +1,4 @@
-// This is the one-time (well, every-time-you-change-docs) script that reads your markdown, chunks it, embeds it, and uploads it.
-
-// scripts/ingest.ts
 import { config } from "dotenv";
-config({ path: ".env.local" });
 import matter from "gray-matter";
 import { readdir, readFile } from "node:fs/promises";
 import { join, relative } from "node:path";
@@ -13,6 +9,7 @@ import {
   upsertChunks,
   type ChunkMetadata,
 } from "../lib/vectorStore";
+config({ path: ".env.local" });
 
 const DOCS_DIR = join(process.cwd(), "docs");
 const BATCH = 50;
@@ -30,11 +27,11 @@ async function walk(dir: string): Promise<string[]> {
 }
 
 async function main() {
-  console.log("🔄 Resetting index...");
+  console.log("Resetting index...............................................");
   await resetIndex();
 
   const files = await walk(DOCS_DIR);
-  console.log(`📂 Found ${files.length} markdown files`);
+  console.log(`Found ${files.length} markdown files`);
 
   const items: { id: string; vector: number[]; metadata: ChunkMetadata }[] = [];
 
@@ -65,11 +62,11 @@ async function main() {
     }
   }
 
-  console.log(`⬆️  Upserting ${items.length} chunks...`);
+  console.log(`Upserting ${items.length} chunks...`);
   for (let i = 0; i < items.length; i += BATCH) {
     await upsertChunks(items.slice(i, i + BATCH));
   }
-  console.log("✅ Done!");
+  console.log("✅ Done");
 }
 
 main().catch((e) => {

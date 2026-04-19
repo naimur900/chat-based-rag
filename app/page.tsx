@@ -504,12 +504,12 @@ export default function Home() {
           )}
 
           {/* Chat messages */}
-          {messages.map((m, idx) => {
+          {Array.from(new Map(messages.map((m) => [m.id, m])).values()).map((m, idx, arr) => {
             const isUser = m.role === "user";
             const isStreamingThis =
               isLoading &&
               !isUser &&
-              idx === messages.length - 1;
+              idx === arr.length - 1;
             const text = m.parts
               .filter(
                 (p): p is { type: "text"; text: string } => p.type === "text"

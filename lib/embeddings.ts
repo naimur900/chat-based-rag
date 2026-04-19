@@ -1,4 +1,3 @@
-// lib/embeddings.ts
 import { GoogleGenAI } from "@google/genai";
 // import OpenAI from "openai";
 // const OLLAMA_URL = process.env.OLLAMA_LOCAL_URL ?? "http://localhost:11434";
@@ -32,7 +31,7 @@ export async function embed(texts: string[]): Promise<number[][]> {
   //   });
   //   return res.data.map((d) => d.embedding);
 
-  // To run the embedding model locally while performing embedding on ingestion
+  // to run the embedding model locally while doing embedding on ingestion
   //   const res = await fetch(`${OLLAMA_URL}/api/embed`, {
   //     method: "POST",
   //     headers: { "Content-Type": "application/json" },

@@ -52,7 +52,8 @@ ${context}`;
 
   // 3. GENERATE (streaming)
   const result = streamText({
-    model: ollama.chat("qwen3.5:cloud"),
+    model: ollama.chat("gemini-3-flash-preview:cloud"),
+    // model: ollama.chat("qwen3.5:cloud"),
     // model: anthropic("claude-sonnet-4-5"),
     system,
     messages: await convertToModelMessages(messages),
