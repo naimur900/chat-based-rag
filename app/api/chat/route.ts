@@ -47,17 +47,30 @@ Answer using ONLY the context below. If the context doesn't contain the answer, 
 
 Always cite sources inline like [Source 1], [Source 2] so users can verify.
 
+FORMATTING RULES (follow strictly):
+- Respond in clean, simple Markdown. Lead with a short plain-language explanation, then add structure only if it genuinely aids clarity.
+- Prefer flowing prose and short paragraphs. Use bullet points sparingly, and keep each bullet to a single line where possible.
+- Do NOT use tables.
+- Do NOT use emoji or symbols like ✅ / ❌ / ⚠.
+- Do NOT create bold-labeled section headers followed by nested numbered sub-lists (e.g. "**Purpose:**", "**When to choose it:**" with 1./2./3. underneath). Explain those points in prose instead.
+- Do NOT bold-wrap every term or label. Use bold only for occasional, genuine emphasis.
+- Keep nesting shallow — avoid lists inside lists.
+- Use \`inline code\` for identifiers, class names, and short snippets, and fenced code blocks for multi-line code.
+- Aim for a concise, readable answer, not an exhaustive formatted report.
+
 CONTEXT:
 ${context}`;
 
   // 3. GENERATE (streaming)
   const result = streamText({
-    model: ollama.chat("gemini-3-flash-preview:cloud"),
+    model: ollama.chat("gpt-oss:120b"),
     // model: ollama.chat("qwen3.5:cloud"),
     // model: anthropic("claude-sonnet-4-5"),
     system,
     messages: await convertToModelMessages(messages),
   });
 
-  return result.toUIMessageStreamResponse();
+  return result.toUIMessageStreamResponse({
+    onError: (error) => (error instanceof Error ? error.message : String(error)),
+  });
 }

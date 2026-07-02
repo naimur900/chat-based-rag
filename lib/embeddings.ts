@@ -16,7 +16,7 @@ export async function embed(texts: string[]): Promise<number[][]> {
   const results = await Promise.all(
     texts.map((text) =>
       getGenai().models.embedContent({
-        model: "gemini-embedding-001",
+        model: "gemini-embedding-2",
         contents: text,
         config: { outputDimensionality: 1536 },
       }),
