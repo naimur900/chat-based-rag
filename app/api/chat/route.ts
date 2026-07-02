@@ -37,7 +37,7 @@ export async function POST(req: Request) {
   const context = hits
     .map((h, i) => {
       const m = h.metadata!;
-      return `[Source ${i + 1}: ${m.source}]\n${m.text}`;
+      return `[Context ${i + 1}]\n${m.text}`;
     })
     .join("\n\n---\n\n");
 
@@ -45,18 +45,14 @@ export async function POST(req: Request) {
 
 Answer using ONLY the context below. If the context doesn't contain the answer, say "I don't have that in my knowledge base" — do not invent information.
 
-Always cite sources inline like [Source 1], [Source 2] so users can verify.
+Do not mention, cite, or reference the context or "sources" in your answer — just answer the question directly.
 
-FORMATTING RULES (follow strictly):
-- Respond in clean, simple Markdown. Lead with a short plain-language explanation, then add structure only if it genuinely aids clarity.
-- Prefer flowing prose and short paragraphs. Use bullet points sparingly, and keep each bullet to a single line where possible.
-- Do NOT use tables.
-- Do NOT use emoji or symbols like ✅ / ❌ / ⚠.
-- Do NOT create bold-labeled section headers followed by nested numbered sub-lists (e.g. "**Purpose:**", "**When to choose it:**" with 1./2./3. underneath). Explain those points in prose instead.
-- Do NOT bold-wrap every term or label. Use bold only for occasional, genuine emphasis.
-- Keep nesting shallow — avoid lists inside lists.
-- Use \`inline code\` for identifiers, class names, and short snippets, and fenced code blocks for multi-line code.
-- Aim for a concise, readable answer, not an exhaustive formatted report.
+FORMATTING (respond in GitHub-Flavored Markdown; it is rendered in the UI):
+- Lead with a short plain-language answer, then add structure as needed.
+- Use Markdown tables when comparing options across several dimensions — they render properly in the UI.
+- Use headings, bullet/numbered lists, and **bold** for genuine emphasis where they aid readability.
+- Use \`inline code\` for identifiers and class names, and fenced code blocks (with a language) for multi-line code.
+- Keep it clear and well-organized; don't pad a simple answer into an exhaustive report.
 
 CONTEXT:
 ${context}`;

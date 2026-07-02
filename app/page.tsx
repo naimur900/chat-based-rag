@@ -1,6 +1,9 @@
 "use client";
 import { useChat } from "@ai-sdk/react";
 import { useState, useRef, useEffect, useCallback } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 
 type SavedChat = {
   id: string;
@@ -39,6 +42,78 @@ function titleFromText(text: string) {
   return clean.length > 40 ? clean.slice(0, 40) + "..." : clean;
 }
 
+function MarkdownMessage({ text: raw }: { text: string }) {
+  // Strip any legacy hidden sources block that may exist in older saved chats.
+  const text = raw.replace(/\n*<!--SOURCES:[\s\S]*?-->/, "").trimEnd();
+
+  return (
+    <div className="markdown-body font-body text-sm leading-relaxed text-on-surface">
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeRaw]}
+        components={{
+          p: ({ children }) => <p className="mb-3 last:mb-0">{children}</p>,
+          h1: ({ children }) => (
+            <h1 className="font-headline font-bold text-base text-primary mt-4 mb-2 first:mt-0">{children}</h1>
+          ),
+          h2: ({ children }) => (
+            <h2 className="font-headline font-bold text-sm text-primary mt-4 mb-2 first:mt-0">{children}</h2>
+          ),
+          h3: ({ children }) => (
+            <h3 className="font-headline font-bold text-sm text-primary/80 mt-3 mb-1 first:mt-0">{children}</h3>
+          ),
+          ul: ({ children }) => <ul className="list-disc pl-5 mb-3 space-y-1">{children}</ul>,
+          ol: ({ children }) => <ol className="list-decimal pl-5 mb-3 space-y-1">{children}</ol>,
+          li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+          strong: ({ children }) => <strong className="font-bold text-on-surface">{children}</strong>,
+          em: ({ children }) => <em className="italic text-on-surface-variant">{children}</em>,
+          a: ({ children, href }) => (
+            <a href={href} target="_blank" rel="noreferrer" className="text-primary underline underline-offset-2 hover:text-primary/80">
+              {children}
+            </a>
+          ),
+          blockquote: ({ children }) => (
+            <blockquote className="border-l-2 border-secondary/40 pl-3 my-3 text-on-surface-variant italic">{children}</blockquote>
+          ),
+          code: ({ className, children }) => {
+            const isBlock = /language-/.test(className ?? "");
+            if (isBlock) {
+              return (
+                <code className={`${className ?? ""} block font-mono text-xs`}>{children}</code>
+              );
+            }
+            return (
+              <code className="font-mono text-[0.8em] px-1 py-0.5 bg-surface-container-high/60 border border-outline-variant/20 text-tertiary rounded-sm">
+                {children}
+              </code>
+            );
+          },
+          pre: ({ children }) => (
+            <pre className="my-3 p-3 bg-surface-container-high/50 border border-outline-variant/20 overflow-x-auto custom-scrollbar rounded-sm">
+              {children}
+            </pre>
+          ),
+          table: ({ children }) => (
+            <div className="my-3 overflow-x-auto custom-scrollbar">
+              <table className="w-full text-xs border-collapse">{children}</table>
+            </div>
+          ),
+          thead: ({ children }) => <thead className="border-b border-primary/30">{children}</thead>,
+          th: ({ children }) => (
+            <th className="text-left font-label uppercase tracking-wider text-[10px] text-primary/80 px-3 py-2">{children}</th>
+          ),
+          td: ({ children }) => (
+            <td className="px-3 py-2 border-b border-outline-variant/10 align-top">{children}</td>
+          ),
+          hr: () => <hr className="my-4 border-outline-variant/20" />,
+        }}
+      >
+        {text}
+      </ReactMarkdown>
+    </div>
+  );
+}
+
 export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -66,9 +141,12 @@ export default function Home() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, status]);
 
-  // Persist current chat messages to localStorage whenever they change
+  // Persist current chat messages to localStorage.
+  // Skip while a response is streaming so we don't setState on every token
+  // (which triggers a "Maximum update depth exceeded" loop); persist once the
+  // stream settles and on other message changes.
   useEffect(() => {
-    if (!activeChatId || messages.length === 0) return;
+    if (!activeChatId || messages.length === 0 || isLoading) return;
     setSavedChats((prev) => {
       const serialized = messages.map((m) => ({
         id: m.id,
@@ -94,7 +172,7 @@ export default function Home() {
       saveToLS(LS_CHATS, updated);
       return updated;
     });
-  }, [messages, activeChatId]);
+  }, [messages, activeChatId, isLoading]);
 
   // --- Actions ---
   const startNewChat = useCallback(() => {
@@ -631,12 +709,12 @@ export default function Home() {
                           Assistant
                         </span>
                       </div>
-                      <p className="font-body text-sm leading-relaxed text-on-surface whitespace-pre-wrap">
-                        {text}
+                      <div className="relative">
+                        <MarkdownMessage text={text} />
                         {isStreamingThis && (
                           <span className="inline-block w-0.5 h-3.5 ml-0.5 bg-secondary align-middle animate-[blink_0.7s_step-end_infinite]" />
                         )}
-                      </p>
+                      </div>
                     </div>
                   </div>
                 )}
